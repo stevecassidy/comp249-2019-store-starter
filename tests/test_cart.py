@@ -36,3 +36,10 @@ class CartTests(unittest.TestCase):
 
         cart = session.get_cart_contents(self.db)
         self.assertEqual(2, len(cart))
+
+        # check that all required fields are in the every cart entry
+        for entry in cart:
+            self.assertIn('id', entry)
+            self.assertIn('name', entry)
+            self.assertIn('quantity', entry)
+            self.assertIn('cost', entry)
