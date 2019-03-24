@@ -47,7 +47,8 @@ like dictionaries, eg:
        print(product['name'], product['description']
 ```
 
-There is noting for you to complete in this module.
+There is nothing for you to complete in this module, you will make use of these functions
+in the code in `main.py`.
 
 session.py
 ----------
@@ -98,7 +99,8 @@ then this function uses the value in the cookie as the sessionid and tries to re
 from the database.  If it finds a matching sessionid, it returns the sessionid as a result.  
 
 If no cookie is found or if there is no sessionid matching the one in the cookie, a new session is
-created.  To do this it makes a new unique identifier (using the `uuid` module) and inserts it
+created.  To do this it makes a new unique identifier (using the `uuid` module, see 
+[the notes](http://pwp.stevecassidy.net/bottle/sessions.html)) and inserts it
 along with an empty shopping cart into the database.  It then returns this sessionid as the result.
 
 `add_to_cart(db, itemid, quantity)` This function adds a new entry to the shopping cart. It will
@@ -133,11 +135,16 @@ description will contain HTML markup so needs to be inserted into the template w
 The product page should also contain a form to add the product to the shopping cart (via a 
 POST request to `/cart` - see below)
 
-`/cart`  a GET request to this URL shows the current contents of the shopping cart.  A POST request
-with variables `product` (the product id) and `quantity` (an integer) adds a new entry to the 
-shopping cart.  The response to the POST request is a redirect to the home page `/`. 
+So, for example, the URL `/product/2` would show all details of the product with id `2` 
+(Classic Varsity Top) and include a form that allows the user to add this to their shopping cart. 
 
-All requests to pages in the app should result in the creation of a new session on the first visit. 
+`/cart`  a GET request to this URL shows the current contents of the shopping cart.  A POST request
+with variables `product` (the product id, an integer) and `quantity` (an integer) adds a new entry to the 
+shopping cart.  The response to the POST request is a **redirect to the cart page `/cart`**. When 
+the browser gets this redirect response it will make a new GET request to `/cart` and the
+resulting page will contain the updated shopping cart contents.
+
+**COOKIES** All requests to pages in the app should result in the creation of a new session on the first visit. 
 This means that for all requests there will be a valid session in the database, either on newly created
 or one identified from a session cookie.  This can be achieved by calling `session.get_or_create_session(db)`
 at the start of every route handler. 
@@ -168,9 +175,7 @@ run each test file individually in PyCharm (right click on the test file and sel
 
 `test_model.py` tests the funcitons in `model.py`, all tests should work already.
 
-`test_session.py`  tests the function `get_or_create_session` in `session.py`.
-
-`test_cart.py` tests the functions in `session.py` relating to the shopping cart.
+`test_session.py`  tests the functions in `session.py`
 
 `test_views.py` provides functional tests of the app by making requests to the URLs defined
 above and checking the responses. 

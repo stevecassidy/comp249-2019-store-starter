@@ -67,6 +67,34 @@ class SessionTests(unittest.TestCase):
         cookieval = self.get_cookie_value(session.COOKIE_NAME)
         self.assertEqual(sessionid, cookieval)
 
+    def test_cart(self):
+        """We can add items to the shopping cart
+        and retrieve them"""
+
+        # first need to force the creation of a session and
+        # add the cookie to the request
+        sessionid = session.get_or_create_session(self.db)
+        self.assertIsNotNone(sessionid)
+        request.cookies[session.COOKIE_NAME] = sessionid
+
+        # initial cart should be empty
+        cart = session.get_cart_contents(self.db)
+        self.assertEqual([], cart)
+
+        # now add something to the cart
+        for pname in ['Yellow Wool Jumper', 'Ocean Blue Shirt']:
+            product =  self.products[pname]
+            session.add_to_cart(self.db, product['id'], 1 )
+
+        cart = session.get_cart_contents(self.db)
+        self.assertEqual(2, len(cart))
+
+        # check that all required fields are in the every cart entry
+        for entry in cart:
+            self.assertIn('id', entry)
+            self.assertIn('name', entry)
+            self.assertIn('quantity', entry)
+            self.assertIn('cost', entry)
 
 
 

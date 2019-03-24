@@ -8,7 +8,7 @@ from webtest import TestApp
 import dbschema
 import main
 import session
-from http.cookiejar import CookieJar
+import urllib
 
 DATABASE_NAME = "test.db"
 # initialise the sqlite plugin for bottle
@@ -30,7 +30,6 @@ class FunctionalTests(unittest.TestCase):
     def tearDown(self):
         self.db.close()
         os.unlink(DATABASE_NAME)
-
 
     def test_home_page_links(self):
         """Home page contains links to Home and View Cart"""
@@ -95,7 +94,7 @@ class FunctionalTests(unittest.TestCase):
             product = self.products[key]
             url = "/product/%s" % product['id']
             response = self.app.get(url)
-            #print(response)
+
             self.assertEqual(200, response.status_code, "Expected 200 OK response for URL %s" % url)
             self.assertIn(html.escape(product['name']), response)
             self.assertIn(str(product['unit_cost']), response)
@@ -107,13 +106,12 @@ class FunctionalTests(unittest.TestCase):
 
         url = "/product/99999"
         response = self.app.get(url, status=404)
-        #print(response)
+
         self.assertEqual(404, response.status_code, "Expected 404 Not Found response for URL %s" % url)
 
     def test_product_page_add_cart_form(self):
         """Each product page should have a form
         to add the product to the shopping cart"""
-
 
         for key in self.products:
             product = self.products[key]
@@ -135,7 +133,6 @@ class FunctionalTests(unittest.TestCase):
         """If I click on the add to cart button my product
         is added to the shopping cart"""
 
-
         product = self.products['Yellow Wool Jumper']
         url = "/product/%s" % product['id']
         response = self.app.get(url)
@@ -155,6 +152,9 @@ class FunctionalTests(unittest.TestCase):
         response = cart_form.submit()
 
         self.assertEqual(302, response.status_code, 'Expected 302 redirect response from cart form submission')
+        urlparts = urllib.parse.urlparse(response.headers['Location'])
+        location = urlparts[2]
+        self.assertEqual('/cart', location, "Expected redirect location header to be /cart")
 
         # and our product should be in the cart
         cart = session.get_cart_contents(self.db)
